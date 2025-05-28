@@ -102,5 +102,7 @@
       }
     }
   },
-  "defaultProject": "productofinanciero"
+  "cli": {
+    "analytics": "c63a3e35-f9f9-4d4f-9472-19c1a114c54b"
+  }
 }
