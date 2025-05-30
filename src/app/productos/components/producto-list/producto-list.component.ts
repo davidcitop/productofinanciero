@@ -3,6 +3,7 @@ import { Producto } from '../../models/producto';
 import { ProductoService } from '../../services/producto.service';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import { NotificacionService } from '../../services/notificacion.service';
 
 @Component({
   selector: 'app-producto-list',
@@ -20,6 +21,7 @@ export class ProductoListComponent implements OnInit {
 
   constructor(
     private productoService: ProductoService,
+    private notificacionService: NotificacionService,
     private router: Router) { }
 
   ngOnInit(): void {
@@ -34,13 +36,10 @@ export class ProductoListComponent implements OnInit {
         this.isLoading = false;
       },
       error: () => {
-        Swal.fire('Error', 'Ocurrió un error al procesar la solicitud', 'error');
         this.isLoading = false;
       }
     });
   }
-
- 
 
   cambiarPagina(size: number): void {
     this.pageSize = size;
@@ -55,7 +54,7 @@ export class ProductoListComponent implements OnInit {
   }
 
   confirmareliminarProducto(producto: Producto): void {
-    this.showConfirm('', `¿Estás seguro de eliminar el producto ${producto.name}?`)
+    this.notificacionService.showConfirm('', `¿Estás seguro de eliminar el producto ${producto.name}?`)
       .then(confirmed => {
         if (confirmed) {
           this.eliminarProducto(producto.id);
@@ -63,36 +62,17 @@ export class ProductoListComponent implements OnInit {
       });
   }
 
-
   private eliminarProducto(id: string): void {
     this.productoService.delete(id).subscribe({
       next: () => {
-        Swal.fire('Éxito', `Producto Eliminado`, 'success');
+        this.notificacionService.showOk('Éxito', `Producto Eliminado`);
         this.cargarProductos();
       },
-      error: () => Swal.fire('Error', ` Error al eliminar producto`, 'warning')
+      error: () => this.notificacionService.showError('Error', ` Error al eliminar producto`)
     });
   }
 
-  showConfirm(title: string, message: string): Promise<boolean> {
-    return Swal.fire({
-      title,
-      html: `<p style="color: black;">${message}</p>`,
-      showCancelButton: true,
-      cancelButtonText: 'Cancelar',
-      confirmButtonText: 'Confirmar',
-      reverseButtons: false,
-      padding:30,
-      background: '#fff url(//bit.ly/3ZauZxU)',
-      customClass: {
-        confirmButton: 'custom-swal-confirm-button',
-        cancelButton: 'custom-swal-cancel-button',
-      },
-      buttonsStyling: false, 
-      focusCancel: true
-    }).then(result => result.isConfirmed);
-  }
-
+ 
   handleImgError(id: string) {
     this.productoConError.add(id);
   }
