@@ -1,0 +1,72 @@
+<div class="table-container">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <input 
+          type="search"
+          class="form-control search-field"
+          name="searchString"
+          [(ngModel)]="searchTerm"
+          style="height: 30px;"
+          placeholder="Buscar...">
+        <button 
+          color="primary" 
+          class="btn-agregar" 
+          (click)="agregarProducto()"
+          style="margin-left: auto;">
+          Agregar
+        </button>
+      </div>
+      <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Logo</th>
+            <th>Nombre</th>
+            <th>Descripcion <span class="icono-exclamacion">!</span></th>
+            <th>Fecha de Liberación <span class="icono-exclamacion">!</span></th>
+            <th>Fecha de Revisión <span class="icono-exclamacion">!</span></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let producto of productos  | slice:0:pageSize | searchFilter: searchTerm">
+            <td><ng-container *ngIf="!productoConError.has(producto.id); else textoFallback">
+                <img [src]="producto.logo" class="avatar" (error)="handleImgError(producto.id)" />
+              </ng-container>
+              <ng-template #textoFallback>
+                <div class="avatar">{{ producto.logo }}</div>
+              </ng-template></td>
+            <td>{{ producto.name }}</td>
+            <td>{{ producto.description }}</td>
+            <td>{{ producto.date_release  | date:'dd/MM/yyyy'}}</td>
+            <td>{{ producto.date_revision  | date:'dd/MM/yyyy'}}</td>
+            <td class="menu-container">
+              <button class="menu-btn" (click)="producto.menuAbierto = !producto.menuAbierto">
+                &#x22EE; <!-- Ícono de tres puntos verticales (more_vert) -->
+              </button>
+              <div class="custom-menu" *ngIf="producto.menuAbierto" >
+                <button (click)="editarProducto(producto.id); producto.menuAbierto = false">
+                   Editar
+                </button>
+                <button (click)="confirmareliminarProducto(producto); producto.menuAbierto = false">
+                   Eliminar
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+      <div class="footer">
+        <span>{{ productosFiltrados.length }} resultados</span>
+        <select [(ngModel)]="pageSize">
+            <option value="5">5 </option>
+            <option value="10">10 </option>
+            <option value="20">20</option>
+        </select>
+      </div>
+      <div *ngIf="isLoading" class="skeleton-loader">
+        <!-- Skeleton loading state -->
+        <div *ngFor="let item of [1,2,3,4,5]" class="skeleton-row"></div>
+      </div>
+    </div>
+  
